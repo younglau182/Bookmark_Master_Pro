@@ -68,13 +68,26 @@ export class TaskManager {
 
   async restoreTaskProgress() {
     if (this.restored) return;
-    let data = {};
+    let tasks = [];
+
     try {
-      data = await storageGet({ [STORAGE_KEYS.TASKS]: [] }, 'session');
+      const fromSession = await storageGet({ [STORAGE_KEYS.TASKS]: [] }, 'session');
+      tasks = fromSession?.[STORAGE_KEYS.TASKS] ?? [];
     } catch {
-      data = await storageGet({ [STORAGE_KEYS.TASKS]: [] }, 'local');
+      tasks = [];
     }
-    (data[STORAGE_KEYS.TASKS] || []).forEach((task) => this.tasks.set(task.id, task));
+
+    if (!Array.isArray(tasks) || tasks.length === 0) {
+      try {
+        const fromLocal = await storageGet({ [STORAGE_KEYS.TASKS]: [] }, 'local');
+        const localTasks = fromLocal?.[STORAGE_KEYS.TASKS] ?? [];
+        if (Array.isArray(localTasks) && localTasks.length > 0) tasks = localTasks;
+      } catch {
+        // Keep the session result (or empty task list) when local fallback is unavailable.
+      }
+    }
+
+    tasks.forEach((task) => this.tasks.set(task.id, task));
     this.restored = true;
   }
 }
