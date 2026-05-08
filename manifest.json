@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "Bookmark Master Pro",
+  "short_name": "BM Pro",
+  "description": "A professional, local-first bookmark management workstation for Chrome and Edge.",
+  "version": "0.1.0",
+  "minimum_chrome_version": "114",
+  "action": {
+    "default_title": "Bookmark Master Pro",
+    "default_popup": "popup/popup.html"
+  },
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "options_page": "options/options.html",
+  "permissions": [
+    "bookmarks",
+    "history",
+    "storage",
+    "unlimitedStorage",
+    "tabs"
+  ],
+  "optional_permissions": [
+    "proxy"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["dashboard/dashboard.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

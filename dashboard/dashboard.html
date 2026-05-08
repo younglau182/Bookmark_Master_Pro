@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bookmark Master Pro Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><div class="logo">BM</div><div><strong>Bookmark Master Pro</strong><span>Professional Workspace</span></div></div>
+      <nav id="nav" aria-label="主菜单"></nav>
+      <div class="sidebar-footer">v0.1.0 · Local-first</div>
+    </aside>
+    <main class="main">
+      <header class="topbar"><div><h1 id="pageTitle">总览</h1><p id="pageSubtitle">让你放心管理大量书签</p></div><button id="refreshButton">刷新</button></header>
+      <section id="routeView" class="route-view" aria-live="polite"></section>
+    </main>
+  </div>
+  <div id="toast" class="toast hidden" role="status"></div>
+  <script type="module" src="dashboard.js"></script>
+</body>
+</html>

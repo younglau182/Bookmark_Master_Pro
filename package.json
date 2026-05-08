@@ -1,0 +1,12 @@
+{
+  "name": "bookmark-master-pro",
+  "version": "0.1.0",
+  "description": "Professional local-first Chrome/Edge bookmark manager extension.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "validate:manifest": "node -e \"JSON.parse(require('fs').readFileSync('manifest.json','utf8')); console.log('manifest.json is valid JSON')\""
+  },
+  "keywords": ["chrome-extension", "edge-extension", "bookmarks", "manifest-v3"],
+  "license": "MIT"
+}
