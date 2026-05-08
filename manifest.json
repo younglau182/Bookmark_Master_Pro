@@ -27,11 +27,5 @@
   "host_permissions": [
     "http://*/*",
     "https://*/*"
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["dashboard/dashboard.html"],
-      "matches": ["<all_urls>"]
-    }
   ]
 }
