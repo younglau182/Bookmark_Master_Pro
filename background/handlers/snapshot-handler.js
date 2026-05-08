@@ -1,5 +1,6 @@
 import { flattenBookmarkTree, getBookmarkTree } from '../../lib/bookmarks.js';
 import { getAllSnapshotMetadata, getRecord, putRecord } from '../../lib/db.js';
+import { patchSummary } from '../../lib/storage.js';
 
 function createSnapshotId() {
   if (globalThis.crypto?.randomUUID) return `snapshot-${globalThis.crypto.randomUUID()}`;
@@ -34,6 +35,12 @@ export async function handleSnapshotMessage(message) {
       sizeBytes: getTreeSizeBytes(tree),
       createdAt: new Date().toISOString()
     };
-    return putRecord('snapshots', snapshot);
+    const created = await putRecord('snapshots', snapshot);
+    await patchSummary({
+      lastSnapshotAt: created.createdAt,
+      lastSnapshotId: created.id,
+      lastSnapshotBookmarkCount: created.bookmarkCount
+    });
+    return created;
   }
 }

@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { handleSnapshotMessage } from '../background/handlers/snapshot-handler.js';
+import { buildSummaryFromInventory } from '../lib/bookmarks.js';
+import { __clearMemoryStoreForTests, getSummary, saveSummary } from '../lib/storage.js';
 
 function buildBookmarkTree(count) {
   return [{
@@ -117,11 +119,13 @@ function installChromeMock(bookmarkCount) {
 }
 
 test('snapshot metadata listing does not include full tree payloads', async (t) => {
+  __clearMemoryStoreForTests();
   installIndexedDbMock();
   installChromeMock(3);
   t.after(() => {
     delete globalThis.chrome;
     delete globalThis.indexedDB;
+    __clearMemoryStoreForTests();
   });
 
   const first = await handleSnapshotMessage({ type: 'snapshots.create', payload: { name: 'Before cleanup' } });
@@ -142,11 +146,13 @@ test('snapshot metadata listing does not include full tree payloads', async (t) 
 });
 
 test('snapshots.get returns the full tree for restore flows', async (t) => {
+  __clearMemoryStoreForTests();
   installIndexedDbMock();
   installChromeMock(2);
   t.after(() => {
     delete globalThis.chrome;
     delete globalThis.indexedDB;
+    __clearMemoryStoreForTests();
   });
 
   const created = await handleSnapshotMessage({ type: 'snapshots.create', payload: { name: 'Restore point' } });
@@ -156,4 +162,37 @@ test('snapshots.get returns the full tree for restore flows', async (t) => {
   assert.equal(snapshot.name, 'Restore point');
   assert.deepEqual(snapshot.tree, created.tree);
   assert.equal(snapshot.tree[0].children[0].children.length, 2);
+});
+
+
+test('snapshots.create updates the summary cache with latest snapshot metadata', async (t) => {
+  __clearMemoryStoreForTests();
+  installIndexedDbMock();
+  installChromeMock(4);
+  await saveSummary({
+    duplicateCount: 7,
+    brokenCount: 2,
+    staleCount: 3,
+    lastHealthCheckAt: '2026-05-07T00:00:00.000Z'
+  });
+  t.after(() => {
+    delete globalThis.chrome;
+    delete globalThis.indexedDB;
+    __clearMemoryStoreForTests();
+  });
+
+  const created = await handleSnapshotMessage({ type: 'snapshots.create', payload: { name: 'Current snapshot' } });
+  const cached = await getSummary();
+  const summary = buildSummaryFromInventory({ bookmarks: [], folders: [] }, cached);
+
+  assert.equal(cached.lastSnapshotAt, created.createdAt);
+  assert.equal(cached.lastSnapshotId, created.id);
+  assert.equal(cached.lastSnapshotBookmarkCount, 4);
+  assert.equal(cached.duplicateCount, 7);
+  assert.equal(cached.brokenCount, 2);
+  assert.equal(cached.staleCount, 3);
+  assert.equal(cached.lastHealthCheckAt, '2026-05-07T00:00:00.000Z');
+  assert.equal(summary.lastSnapshotAt, created.createdAt);
+  assert.equal(summary.lastSnapshotId, created.id);
+  assert.equal(summary.lastSnapshotBookmarkCount, 4);
 });
