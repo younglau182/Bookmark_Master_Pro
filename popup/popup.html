@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bookmark Master Pro</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="popup-shell">
+    <header class="brand">
+      <div class="logo" aria-hidden="true">BM</div>
+      <div><h1>Bookmark Master Pro</h1><p>轻量状态面板</p></div>
+    </header>
+
+    <section class="stats" aria-label="书签概览">
+      <div><strong id="totalBookmarks">--</strong><span>书签</span></div>
+      <div><strong id="duplicateCount">--</strong><span>重复</span></div>
+      <div><strong id="brokenCount">--</strong><span>失效</span></div>
+      <div><strong id="staleCount">--</strong><span>吃灰</span></div>
+    </section>
+
+    <section class="panel">
+      <label for="searchInput">快速搜索</label>
+      <div class="search-row">
+        <input id="searchInput" type="search" placeholder="输入关键词，进入 Dashboard 搜索">
+        <button id="searchButton">搜索</button>
+      </div>
+    </section>
+
+    <section class="panel current-page">
+      <div class="panel-title">当前页面</div>
+      <p id="currentPageStatus">正在读取当前标签页...</p>
+      <div id="currentPageEditor" class="hidden">
+        <input id="currentTitle" type="text" aria-label="书签标题">
+        <button id="saveCurrentTitle">保存标题</button>
+      </div>
+      <button id="bookmarkCurrent">收藏当前页面</button>
+    </section>
+
+    <button id="taskStatus" class="task-status">后台任务：暂无运行任务</button>
+
+    <footer>
+      <button id="openDashboard" class="primary">打开 Dashboard</button>
+      <button id="openOptions">设置</button>
+      <span>v0.1.0</span>
+    </footer>
+  </main>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
