@@ -7,7 +7,7 @@ export async function renderSafety({ view, send, toast }) {
   const list = document.createElement('section'); list.className = 'result-list';
   async function refresh() {
     list.textContent = '';
-    const snapshots = await send('snapshots.list');
+    const snapshots = await send('snapshots.listMetadata');
     if (!snapshots.length) { const empty = document.createElement('div'); empty.className = 'empty'; empty.textContent = '暂无快照。'; list.append(empty); return; }
     snapshots.forEach((snapshot) => { const item = document.createElement('article'); item.className = 'result-card'; item.textContent = `${snapshot.name} · ${new Date(snapshot.createdAt).toLocaleString()}`; list.append(item); });
   }
