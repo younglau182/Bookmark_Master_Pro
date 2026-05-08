@@ -80,6 +80,20 @@ bookmark-master-pro/
 5. **后台任务系统**：统一 `TaskManager`，支持 create/start/pause/resume/stop/get/list/persist/restore，进度优先写入 `chrome.storage.session`，失败时回退 `chrome.storage.local`。
 6. **基础测试**：覆盖 URL 标准化、去重分组、分类建议、存储封装。
 
+
+### Phase 1.5 backlog
+
+Phase 1.5 backlog tracks docs-first follow-up specs for CI, smoke testing, safety documentation, logger cleanup, and task UI refresh work. See [docs/phase-1.5/README.md](docs/phase-1.5/README.md).
+
+To seed GitHub issues from the Phase 1.5 specs, run:
+
+```bash
+chmod +x scripts/seed-phase-1.5-issues.sh
+./scripts/seed-phase-1.5-issues.sh
+```
+
+`gh auth login` is required before running the script locally. The script is idempotent and skips existing issues with matching titles.
+
 ## 功能说明
 
 ### Popup
