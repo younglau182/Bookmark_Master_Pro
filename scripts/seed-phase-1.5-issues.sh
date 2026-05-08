@@ -22,6 +22,29 @@ fi
 
 created_urls=()
 
+ensure_label_exists() {
+  local label="$1"
+  local color="$2"
+  local description="$3"
+
+  if gh label view "$label" >/dev/null 2>&1; then
+    echo "label exists: $label"
+    return 0
+  fi
+
+  gh label create "$label" --color "$color" --description "$description" >/dev/null
+  echo "label created: $label"
+}
+
+ensure_required_labels() {
+  ensure_label_exists "phase-1.5" "5319e7" "Phase 1.5 backlog issue"
+  ensure_label_exists "ci" "0e8a16" "Continuous integration work"
+  ensure_label_exists "test" "1d76db" "Testing and validation work"
+  ensure_label_exists "docs" "0075ca" "Documentation work"
+  ensure_label_exists "chore" "fef2c0" "Maintenance and cleanup work"
+  ensure_label_exists "ux" "fbca04" "User experience work"
+}
+
 extract_title() {
   local file="$1"
   local title
@@ -76,6 +99,8 @@ create_issue_from_spec() {
   created_urls+=("$issue_url")
   echo "created: $issue_url"
 }
+
+ensure_required_labels
 
 create_issue_from_spec "$DOCS_DIR/01-ci.md" "ci"
 create_issue_from_spec "$DOCS_DIR/02-e2e-smoke.md" "test"

@@ -92,7 +92,7 @@ chmod +x scripts/seed-phase-1.5-issues.sh
 ./scripts/seed-phase-1.5-issues.sh
 ```
 
-`gh auth login` is required before running the script locally. The script is idempotent and skips existing issues with matching titles.
+`gh auth login` is required before running the script locally. The script automatically creates missing labels before seeding issues, remains idempotent, and skips existing issues with matching titles.
 
 ## 功能说明
 
