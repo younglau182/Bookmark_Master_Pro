@@ -85,7 +85,7 @@ create_issue_from_spec() {
   title="$(extract_title "$file")"
   echo "Checking: $title"
 
-  existing="$(gh issue list --search "$title in:title" --limit 1 --json url --jq '.[0].url // ""')"
+  existing="$(gh issue list --state all --search "$title in:title" --limit 1 --json url --jq '.[0].url // ""')"
   if [[ -n "$existing" ]]; then
     echo "exists: $title ($existing)"
     return 0
