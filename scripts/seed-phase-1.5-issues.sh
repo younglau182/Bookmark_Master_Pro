@@ -15,6 +15,7 @@ DOCS_DIR=docs/phase-1.5
 
 # 存储创建的 issue URL
 created_urls=()
+shopt -s nullglob
 
 # ------------------------------
 # 函数：确保 label 存在
@@ -47,16 +48,48 @@ ensure_required_labels() {
 ensure_required_labels
 
 # ------------------------------
-# 遍历 markdown 文件，创建 backlog issue
+# 遍历 numbered markdown spec files，创建 backlog issue
 # ------------------------------
-for md_file in "$DOCS_DIR"/*.md; do
-    # 提取 Title
-    title=$(grep -m1 -E '^Title: |^# ' "$md_file" | sed 's/^Title: //; s/^# //')
-    # 提取 Body
-    body=$(sed -n '/^Title: /{n;:a;p;n;ba}' "$md_file")
+spec_files=("$DOCS_DIR"/[0-9][0-9]-*.md)
+if ((${#spec_files[@]} == 0)); then
+    echo "No phase 1.5 spec files found in: $DOCS_DIR" >&2
+    exit 1
+fi
 
-    # 检查是否已有相同 title 的 issue（包括 closed issue）
-    existing=$(gh issue list --state all --search "$title in:title" --limit 1 --json url --jq '.[0].url // ""')
+for md_file in "${spec_files[@]}"; do
+    # 提取 Title 与 Body，支持 `Title:` front matter 或一级 Markdown 标题。
+    title_line_num=$(grep -n -m1 -E '^(Title: |# )' "$md_file" | cut -d: -f1 || true)
+    if [[ -z "$title_line_num" ]]; then
+        echo "Missing title in $md_file. Expected a line starting with 'Title: ' or '# '." >&2
+        exit 1
+    fi
+
+    title_line=$(sed -n "${title_line_num}p" "$md_file")
+    title=${title_line#Title: }
+    title=${title#\# }
+    body=$(tail -n +$((title_line_num + 1)) "$md_file")
+
+    if [[ -z "$title" || -z "$body" ]]; then
+        echo "Invalid issue content in $md_file: title and body are required." >&2
+        exit 1
+    fi
+
+    # 检查是否已有完全相同 title 的 issue（包括 closed issue）
+    search_title=${title//\"/ }
+    existing=$(
+        gh issue list \
+            --state all \
+            --search "\"$search_title\" in:title" \
+            --limit 20 \
+            --json title,url \
+            --template '{{range .}}{{printf "%s\t%s\n" .title .url}}{{end}}' |
+            while IFS=$'\t' read -r candidate_title candidate_url; do
+                if [[ "$candidate_title" == "$title" ]]; then
+                    printf '%s\n' "$candidate_url"
+                    break
+                fi
+            done
+    )
     if [[ -n "$existing" ]]; then
         echo "exists: $title ($existing)"
         continue
@@ -72,11 +105,16 @@ for md_file in "$DOCS_DIR"/*.md; do
         *) label="phase-1.5" ;;
     esac
 
+    labels="phase-1.5"
+    if [[ "$label" != "phase-1.5" ]]; then
+        labels="$labels,$label"
+    fi
+
     # 创建 issue
     url=$(gh issue create \
         --title "$title" \
         --body "$body" \
-        --label "phase-1.5,$label" \
+        --label "$labels" \
         --json url --jq '.url')
 
     created_urls+=("$url")
